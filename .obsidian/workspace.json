@@ -13,30 +13,15 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "README.md",
+                "file": "ObsidianSync_Diary/Roadmaps/RDM_Milestone_4.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "README"
-            }
-          },
-          {
-            "id": "ea73ac9c038a0400",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "ObsidianSync Diary/Scores/SCR_Milestone_2.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "SCR_Milestone_2"
+              "title": "RDM_Milestone_4"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -198,26 +183,43 @@
       "bases:Crea nuova Base": false
     }
   },
-  "active": "ea73ac9c038a0400",
+  "active": "6105469814fe03e1",
   "lastOpenFiles": [
-    "ObsidianSync Diary/Diagrams/DGR_Overview.md",
-    "ObsidianSync Diary/Scores/SCR_Milestone_2.md",
-    "ObsidianSync Diary/Diagrams",
-    "ObsidianSync Diary/Tutorials/TTR_Milestone_2.md",
-    "ObsidianSync Diary/Troubleshooting/TRB_Milestone_2.md",
+    "ObsidianSync_Diary/Groomings/GRM_Milestone_1.md",
+    "ObsidianSync_Diary/Roadmaps/RDM_Milestone_4.md",
+    "ObsidianSync_Diary/Groomings/GRM_Milestone_4.md",
+    "ObsidianSync_Diary/Roadmaps",
+    "ObsidianSync_Diary/Groomings/GRM_Milestone_3.md",
+    "ObsidianSync_Diary/Milestones/MILESTONE_3.md",
+    "ObsidianSync_Diary/Scores/SCR_Milestone_3.md",
+    "ObsidianSync_Diary/Tutorials/TTR_Milestone_3.md",
+    "ObsidianSync_Diary/Milestones/MILESTONE_1.md",
     "README.md",
+    "ObsidianSync_Diary/Tutorials/TTR_Milestone_2.md",
+    "Nuovo Documento di testo.txt",
+    "ObsidianSync_Diary/Troubleshooting/TRB_Milestone_3.md",
+    "ObsidianSync_Diary/Troubleshooting/TRB_Milestone_2.md",
+    "ObsidianSync_Diary/Scores/SCR_Milestone_2.md",
+    "ObsidianSync_Diary/Milestones/MILESTONE_2.md",
+    "ObsidianSync_Diary/Groomings/GRM_Milestone_2.md",
+    "ObsidianSync_Diary/Diagrams/DGR_Overview.md",
+    "ObsidianSync_Diary/Tutorials",
+    "ObsidianSync_Diary/Troubleshooting",
+    "ObsidianSync_Diary/Scores",
+    "ObsidianSync_Diary/Milestones",
+    "ObsidianSync_Diary/Groomings",
+    "ObsidianSync_Diary/Diagrams",
+    "ObsidianSync_Diary/Decisions",
+    "ObsidianSync_Diary",
+    "ObsidianSync Diary/Scores/SCR_Milestone_3.md",
+    "ObsidianSync Diary/Scores/SCR_Milestone_2.md",
+    "ObsidianSync Diary/Groomings/GRM_Milestone_3.md",
+    "ObsidianSync Diary/Groomings/GRM_Milestone_2.md",
+    "ObsidianSync Diary/Tutorials/TTR_Milestone_3.md",
+    "ObsidianSync Diary/Troubleshooting/TRB_Milestone_3.md",
+    "ObsidianSync Diary/Troubleshooting/TRB_Milestone_2.md",
+    "ObsidianSync Diary/Milestones/MILESTONE_2.md",
     "ObsidianSync Diary/Milestones/MILESTONE_1.md",
-    "ObsidianSync Diary/Tutorials",
-    "Diary/Scores/SCR_Milestone_2.md",
-    "Diary/Milestones/MILESTONE_1.md",
-    "Diary/Decisions/DEC_Milestone_1.md",
-    "Diary/Groomings/GRM_Milestone_2.md",
-    "Diary/Scores",
-    "Diary/Milestones",
-    "Diary/Decisions",
-    "Diary/Groomings",
-    "Diary",
-    "Diary/Decisions/DECISIONS.md",
-    "Diary/Decisions/Decision Track Record.md"
+    "ObsidianSync Diary/Diagrams/DGR_Overview.md"
   ]
 }

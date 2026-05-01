@@ -37,3 +37,15 @@
 | Correttezza logica | 8/10 | Flusso stash/pull/pop corretto, AUTOSAVE separato da PUSH correttamente                     |
 | Autonomia          | 9/10 | `retry` con signature estesa a `Exception` — scelta proattiva e migliorativa                |
 | Manutenibilità     | 7/10 | `pool` passato come `null` nel Main, `ExecutorService` nel costruttore senza utilizzo reale |
+
+---
+
+# Pagella AutosaveScheduler
+## Valutazione — 8.5/10
+
+|Dimensione|Voto|Note|
+|---|---|---|
+|Rapidità delivery|9/10|Implementazione autonoma e corretta al primo tentativo|
+|Correttezza logica|8/10|Struttura giusta, un punto critico sul task|
+|Autonomia|9/10|`ScheduledFuture`, `awaitTermination`, `TimeUnit` — tutti trovati autonomamente|
+|Manutenibilità|8/10|`ScheduledFuture` non salvato, task non wrappato in try/catch|

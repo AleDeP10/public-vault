@@ -67,12 +67,12 @@
 
 ### Punteggio Complessivo: 8.4 / 10
 
-| Dimensione | Punteggio | Note |
-|---|---|---|
-| Velocità di acquisizione know-how | 8.5/10 | Concetti spiegati una volta sola applicati subito e correttamente. Git internals, process management Java, thread safety — assorbiti on the fly senza dover tornare indietro. |
-| Velocità di delivery | 7.5/10 | Buon ritmo generale. Attrito significativo da problemi ambientali (2FA GitHub, conflitti Git, interferenze IDE) non imputabili a lacune tecniche. |
-| Impegno | 9.0/10 | Ha affrontato ogni ostacolo senza perdere il filo. Ha posto le domande giuste al momento giusto. Non ha mai saltato i passaggi né chiesto la risposta prima di tentare. |
-| Consapevolezza della qualità del codice | 8.5/10 | Ha identificato e corretto proattivamente inconsistenze (exit /b, ordine dei catch, try/catch duplicato). Ha lasciato TODO significativi invece di ignorare i punti aperti. Il refactor finale del Main dimostra maturità progettuale. |
+| Dimensione                              | Punteggio | Note                                                                                                                                                                                                                                   |
+| --------------------------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Velocità di acquisizione know-how       | 8.5/10    | Concetti spiegati una volta sola applicati subito e correttamente. Git internals, process management Java, thread safety — assorbiti on the fly senza dover tornare indietro.                                                          |
+| Velocità di delivery                    | 7.5/10    | Buon ritmo generale. Attrito significativo da problemi ambientali (2FA GitHub, conflitti Git, interferenze IDE) non imputabili a lacune tecniche.                                                                                      |
+| Impegno                                 | 9.0/10    | Ha affrontato ogni ostacolo senza perdere il filo. Ha posto le domande giuste al momento giusto. Non ha mai saltato i passaggi né chiesto la risposta prima di tentare.                                                                |
+| Consapevolezza della qualità del codice | 8.5/10    | Ha identificato e corretto proattivamente inconsistenze (exit /b, ordine dei catch, try/catch duplicato). Ha lasciato TODO significativi invece di ignorare i punti aperti. Il refactor finale del Main dimostra maturità progettuale. |
 
 ### Note del Trainer
 

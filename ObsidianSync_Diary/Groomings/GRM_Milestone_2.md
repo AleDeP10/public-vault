@@ -77,8 +77,52 @@ PUSH_MANUAL / PUSH_LOGOFF → commit locale + push remoto
   
 Motivazione: resilienza — l'autosave funziona anche senza rete. Separazione delle responsabilità — il commit locale è sempre disponibile, il push remoto è una operazione distinta e fallibile. Il retry con exponential backoff si applica solo alle operazioni che toccano il remoto.
 
+---
 
-# GROOMING_1 — Output Finali
+## [M2] Guard `hasUncommittedChanges()` prima di stash/stashPop
+
+**Contesto**: `git stash pop` su uno stash vuoto restituisce exit code 1 con errore. Se il pull al logon viene eseguito su una working tree pulita, lo stash è vuoto e lo stashPop successivo fallirebbe, innescando il retry inutilmente.
+
+**Decisione**: `gitService.hasUncommittedChanges()` come guard obbligatorio prima di `stash()` e `stashPop()`. `stashPop()` viene chiamato solo se `stash()` è stato chiamato.
+
+**Implementazione**: `git status --porcelain` — output stabile e locale-indipendente. Output vuoto = working tree pulita. Output non vuoto = modifiche presenti (staged o unstaged).
+
+**Motivazione**: `git diff --quiet` controlla solo le modifiche non staged — insufficiente. `git status --porcelain` copre tutti i casi incluse le modifiche staged non ancora committate.
+
+---
+
+## [M2] `notify()` rinominato `onFailure()` in NotificationHook
+
+**Contesto**: l'interfaccia `NotificationHook` definiva il metodo `notify(SyncEvent event)`. `Object.notify()` è un metodo nativo Java su tutti gli oggetti — la collisione di nomi genera ambiguità e warning del compilatore.
+
+**Decisione**: metodo rinominato `onFailure(SyncEvent event, String message)` con l'aggiunta del parametro `message` per comunicare la causa reale del fallimento.
+
+**Motivazione**: chiarezza semantica — `onFailure` descrive esattamente il contratto. Il parametro `message` permette all'implementazione tray futura di mostrare un messaggio contestuale all'utente senza dover ispezionare l'evento.
+
+---
+
+## [M2] Adozione di Git Flow come branching strategy
+
+**Contesto**: il progetto cresce in complessità e le milestone si susseguono con obiettivi distinti. Committare direttamente su `main` o `develop` non separa il lavoro in corso dal codice integrato.
+
+**Decisione**: Git Flow AVH Edition come branching strategy standard.
+
+|Branch|Ruolo|
+|---|---|
+|`main`|Solo codice rilasciato. Taggato ad ogni milestone.|
+|`develop`|Integrazione continua dello sprint.|
+|`feature/*`|Un branch per ogni obiettivo del grooming.|
+|`release/*`|Preparazione al rilascio — bump versione, fix finali.|
+|`hotfix/*`|Fix urgenti su `main`, mergiati anche su `develop`.|
+
+**Motivazione**: separazione netta tra lavoro in corso e codice stabile; diff per feature leggibili anche dai recruiter; mapping diretto con la metodologia Agile adottata — ogni obiettivo del grooming diventa un `feature/*` branch.
+
+**Nota operativa**: Git Flow AVH Edition è incluso di default in Git for Windows — nessuna installazione aggiuntiva necessaria. Inizializzazione con `git flow init` su repo esistente, senza distruggere branch o history esistenti.
+
+**Alternative scartate**: trunk-based development — adatto a team con CI/CD maturo, prematuro per un progetto monopersona in fase di apprendimento.
+
+
+# GROOMING_2 — Output Finali
 
 ---
 
