@@ -1,75 +1,81 @@
 # 📓 Obsidian Portfolio Vault
 
-This repository is the **public knowledge base** of an ongoing learning and development journey, built around [ObsidianSync](https://github.com/AleDeP10/ObsidianSync) — a self-built Java CLI tool that automates Git-based synchronization of an Obsidian vault across multiple Windows machines.
+Questa repository è la **knowledge base pubblica** di un percorso di apprendimento e sviluppo, costruita attorno a [ObsidianSync](https://github.com/AleDeP10/ObsidianSync) — uno strumento Java CLI self-built che automatizza la sincronizzazione Git di un vault Obsidian tra più macchine Windows.
 
-The vault documents the full lifecycle of the project: architecture decisions, sprint planning, milestone retrospectives, and scored self-assessments — structured as a real-world Agile workflow.
-
----
-
-## Why this exists
-
-Most portfolios show the final product. This one shows **the process**.
-
-Every decision has a reason. Every obstacle has a post-mortem. Every sprint has a score. The goal is to demonstrate not just what was built, but _how_ — the thinking, the trade-offs, and the growth across iterations.
+Il vault documenta il ciclo di vita completo del progetto: decisioni architetturali, pianificazione degli sprint, retrospettive di milestone e autovalutazioni — strutturati come un vero workflow Agile.
 
 ---
 
-## Repository structure
+## Perché esiste
+
+La maggior parte dei portfolio mostra il prodotto finito. Questo mostra **il processo**.
+
+Ogni decisione ha una motivazione. Ogni ostacolo ha un post-mortem. Ogni sprint ha un punteggio. L'obiettivo è dimostrare non solo cosa è stato costruito, ma _come_ — il ragionamento, i trade-off e la crescita sprint dopo sprint.
+
+---
+
+## Struttura della repository
 
 ```
 obsidian-portfolio/
 └── ObsidianSync Diary/
-    ├── Diagrams/           ← Architecture and component interaction diagrams
+    ├── Diagrams/           ← Diagrammi di architettura e interazione tra componenti
     │   └── DGR_Overview.md
-    ├── Groomings/          ← Sprint planning + Architecture Decision Records (ADR-style)
+    ├── Groomings/          ← Pianificazione sprint + Architecture Decision Records (stile ADR)
     │   ├── GRM_Milestone_1.md
     │   ├── GRM_Milestone_2.md
-    │   └── GRM_Milestone_3.md
-    ├── Milestones/         ← Sprint retrospectives: objectives, problems, cheat-sheets
+    │   ├── GRM_Milestone_3.md
+    │   └── GRM_Milestone_4.md
+    ├── Milestones/         ← Retrospettive di sprint: obiettivi, problemi, cheat-sheet acquisiti
     │   ├── MILESTONE_1.md
-    │   └── MILESTONE_2.md
-    ├── Scores/             ← Recruiter-style assessments and personal trainer evaluations
+    │   ├── MILESTONE_2.md
+    │   └── MILESTONE_3.md
+    ├── Roadmaps/           ← Pianificazione implementativa per milestone
+    │   └── RDM_Milestone_4.md
+    ├── Scores/             ← Valutazioni recruiter-style e personal trainer
     │   ├── SCR_Milestone_2.md
     │   └── SCR_Milestone_3.md
-    ├── Troubleshooting/    ← Post-mortems for environment and development blockers
+    ├── Troubleshooting/    ← Post-mortem su problemi ambientali e di sviluppo
     │   ├── TRB_Milestone_2.md
     │   └── TRB_Milestone_3.md
-    └── Tutorials/          ← Technical cheat-sheets acquired sprint by sprint
+    └── Tutorials/          ← Cheat-sheet tecnici acquisiti sprint per sprint
         ├── TTR_Milestone_2.md
         └── TTR_Milestone_3.md
 ```
 
 ---
 
-## The project: ObsidianSync
+## Il progetto: ObsidianSync
 
-> A lightweight Java CLI tool that automates Git-based sync of an Obsidian vault across Windows machines. Triggered on logon/logoff via Task Scheduler, it handles pull/push workflows, differential autosave, and conflict resolution with audit logging.
+> Uno strumento Java CLI leggero che automatizza la sincronizzazione Git di un vault Obsidian tra più macchine Windows. Attivato al logon/logoff tramite Task Scheduler, gestisce i flussi pull/push, l'autosave differenziale e la risoluzione dei conflitti con audit logging.
 
 **Tech stack**: Java 21 · Maven · Git CLI via ProcessBuilder · Task Scheduler · Windows Batch
 
-**Source code**: [github.com/AleDeP10/ObsidianSync](https://github.com/AleDeP10/ObsidianSync)
+**Codice sorgente**: [github.com/AleDeP10/ObsidianSync](https://github.com/AleDeP10/ObsidianSync)
 
-### Architecture highlights
+### Punti architetturali salienti
 
-- **Event-driven orchestration** — operations are published as prioritized events to a queue; the orchestrator consumes them serially, preventing Git concurrency issues by design
-- **Exponential backoff retry** — network failures trigger up to 3 retries with progressive delays (30s → 60s → 120s)
-- **Differential autosave** — commits only when `git status --porcelain` detects actual changes
-- **Conflict resolution** — `git pull -X theirs` with full audit logging; remote is source of truth
-- **Dependency inversion** — `NotificationHook` interface decouples the orchestrator from any future notification implementation (tray icon, toast, etc.)
+- **Orchestrazione event-driven** — le operazioni vengono pubblicate come eventi prioritizzati su una coda; l'orchestratore li consuma in modo seriale, prevenendo per design i problemi di concorrenza Git
+- **Retry con exponential backoff** — i fallimenti di rete innescano fino a 3 tentativi con delay progressivi (30s → 60s → 120s)
+- **Autosave differenziale** — committa solo quando `git status --porcelain` rileva modifiche effettive
+- **Risoluzione conflitti** — `git pull -X theirs` con audit logging completo; il remoto è la fonte di verità
+- **Dependency inversion** — l'interfaccia `NotificationHook` disaccoppia l'orchestratore da qualsiasi implementazione futura (tray icon, toast, ecc.)
 
 ---
 
-## How to read this vault
+## Come leggere questo vault
 
-**Start with** `Groomings/GRM_Milestone_1.md` — the architectural choices made before writing a single line of code. Every trade-off is documented with context, motivation and discarded alternatives.
+**Inizia con** `Groomings/GRM_Milestone_1.md` — le scelte architetturali fatte prima di scrivere una riga di codice. Ogni trade-off è documentato con contesto, motivazione e alternative scartate.
 
-**Then read** `Milestones/MILESTONE_1.md` — the retrospective: what was built, what broke, and what was learned. Followed by `MILESTONE_2.md` for the event-driven architecture sprint.
+**Poi leggi** `Milestones/MILESTONE_1.md` — la retrospettiva: cosa è stato costruito, cosa si è rotto e cosa si è imparato. Seguita da `MILESTONE_2.md` per lo sprint sull'architettura event-driven e `MILESTONE_3.md` per la suite di test.
 
-**Follow with** `Groomings/GRM_Milestone_2.md` — how the next sprint was planned: risks identified, priorities set, unknowns acknowledged before touching the keyboard.
+**Prosegui con** `Groomings/GRM_Milestone_2.md` — come è stato pianificato lo sprint successivo: rischi identificati, priorità stabilite, incognite affrontate prima di toccare la tastiera.
 
-**When something breaks**, `Troubleshooting/` shows how it was diagnosed and fixed — from Git conflicts to JDK misconfiguration and IntelliJ cache corruption.
+**Quando qualcosa si rompe**, `Troubleshooting/` mostra come è stato diagnosticato e risolto — dai conflitti Git alla misconfiguration del JDK e alla corruzione della cache di IntelliJ.
 
-**For the visual overview**, `Diagrams/DGR_Overview.md` contains the full component interaction diagram with colour-coded roles and annotated data flows.
+**Per la panoramica visiva**, `Diagrams/DGR_Overview.md` contiene il diagramma completo delle interazioni tra componenti con ruoli codificati a colori.
+
+**Per la pianificazione implementativa**, `Roadmaps/` contiene l'ordine di delivery suggerito per ogni milestone con analisi dei rischi.
 
 ---
 

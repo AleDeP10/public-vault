@@ -2,112 +2,155 @@
 
 ---
 
-## Contesto
-
-Questa milestone completa l'integrazione con Windows e introduce le feature visibili all'utente: tray icon, multi-vault, push manuale. È l'ultimo sprint prima della validazione end-to-end su vault reale.
+## DTR
 
 ---
 
-## Sessione di Grooming
+### [M4] NetworkException vs GitException in GitService
 
-### NetworkException vs GitException
+**Contesto**: il retry con exponential backoff deve applicarsi solo ai fallimenti di rete, non agli errori locali Git (conflitti, stash vuoto, repository corrotto). Git restituisce exit code generici — la distinzione va ricavata analizzando lo stderr.
 
-Git restituisce exit code generici — non distingue errori di rete da errori locali. La distinzione va ricavata analizzando lo stderr. Tre approcci valutati:
+**Decisione**: `GitService` lancia `NetworkException` per errori di connettività e `GitException` per errori locali. `SyncOrchestrator` gestisce i due casi con catch separati. Il retry si applica solo a `NetworkException`.
 
-- **Pattern matching generico** — rischio falsi positivi sul retry
-- **Exit code + stderr combinati** — exit code 128 non è esclusivo degli errori di rete
-- **Whitelist dei pattern di rete** ✅ — approccio conservativo, solo i pattern noti lanciano `NetworkException`, tutto il resto è `GitException`
+**Implementazione**: whitelist di pattern noti per gli errori di rete. Qualsiasi output stderr che corrisponde a un pattern della lista innesca `NetworkException`; tutto il resto innesca `GitException`.
 
-Pattern riconosciuti come errori di rete: `timeout`, `Could not resolve host`, `Connection refused`, `Failed to connect`, `Network is unreachable`.
+**Pattern riconosciuti come errori di rete**: `timeout`, `Could not resolve host`, `Connection refused`, `Failed to connect`, `Network is unreachable`.
 
-**Rischio identificato**: su installazioni Windows in italiano, i messaggi stderr di Git potrebbero essere localizzati. Da verificare sulla macchina reale prima di finalizzare la whitelist.
+**Rischio accettato**: su installazioni Windows con Git localizzato, i messaggi stderr potrebbero essere in italiano. Da verificare sulla macchina reale prima di finalizzare la whitelist.
+
+**Motivazione**: semantica chiara; retry applicato solo dove ha senso. Pattern standard nei sistemi distribuiti.
 
 ---
 
-### Processo persistente e Task Scheduler
+### [M4] Processo persistente con IPC rispetto a processi effimeri per task
 
-Task Scheduler avvia una nuova JVM per ogni task — non c'è un orchestratore persistente condiviso tra i processi. Due modelli valutati:
+**Contesto**: Task Scheduler avvia una nuova JVM per ogni task — pull, push, autosave. Se ogni task istanzia il proprio `SyncOrchestrator`, la coda a priorità perde significato: i task non coesistono mai nella stessa coda e non possono essere deduplicati né ordinati.
 
-- **Processo effimero per task** — semplice, ma la coda a priorità perde senso
-- **Processo persistente con IPC** ✅ — un processo principale ospita l'orchestratore, i task sono client che gli inviano eventi
-
-La tray icon è il candidato naturale come processo host: è già persistente per natura, già prevista nell'architettura, e consolida orchestratore e UI nello stesso processo.
+**Decisione**: un processo persistente ospita l'orchestratore. I task fungono da client che inviano un evento via socket e terminano. La tray icon è il candidato naturale come processo host — è già persistente per natura e già prevista nell'architettura.
 
 **Modalità di avvio del JAR**:
 
 - `tray` → avvia tray + socket server + orchestratore
-- `logon` / `logoff` / `autosave` → client socket, inviano evento e terminano
+- `logon` / `logoff` / `autosave` → client socket, invia evento, termina
+
+**Alternativa scartata**: processo effimero per task — semplice, ma la coda a priorità è priva di significato e la deduplicazione è impossibile.
 
 ---
 
-### IPC: Local Socket
+### [M4] IPC tramite socket TCP locale
 
-Tre opzioni valutate per la comunicazione tra task e processo principale:
+**Contesto**: i task hanno bisogno di un meccanismo per inviare eventi al processo tray persistente. Tre opzioni valutate: file di lock, named pipe Windows, socket TCP locale.
 
-- **File di lock** — polling, non bidirezionale, non scala
-- **Named pipe Windows** — API Java macchinose, non portabile su macOS
-- **Local socket TCP** ✅ — bidirezionale, portabile, base concettuale per WebSocket e microservizi
+**Decisione**: socket TCP locale su `localhost:4242`. Porta configurabile via `config.properties`.
 
-Porta scelta: **4242**, configurabile via `config.properties`.
-
-La scelta è motivata anche dall'obiettivo formativo: il modello concettuale del socket TCP è identico a quello delle WebSocket. Chi capisce uno capisce l'altro.
+**Motivazione**: bidirezionale, portabile tra Windows e macOS, zero dipendenze da API native. Il modello concettuale del socket TCP è identico a quello delle WebSocket — chi capisce uno capisce l'altro. Le named pipe hanno API Java macchinose e non sono portabili. I file di lock richiedono polling e non sono bidirezionali.
 
 ---
 
-### Protocollo messaggi: JSON
+### [M4] Protocollo messaggi JSON sul socket
 
-Stringa semplice scartata — non estensibile, nessun supporto a metadati futuri. JSON adottato con campi `event`, `vaultId`, `timestamp`. Il campo `vaultId` è già predisposto per il multi-vault.
+**Contesto**: una stringa semplice sul socket non è estensibile e non porta metadati.
 
----
+**Decisione**: messaggi JSON con campi `event`, `vaultId`, `timestamp`.
 
-### Retry client socket
-
-Il client socket adotta la stessa politica di retry dell'orchestratore — exponential backoff 30s → 60s → 120s, massimo 3 tentativi. Nessun delay esplicito tra task in Task Scheduler: i 30 secondi del primo tentativo coprono qualsiasi finestra di startup su un sistema contemporaneo.
+**Motivazione**: estensibile senza rompere i client esistenti; `vaultId` è già predisposto per il supporto multi-vault; leggibile per il debugging.
 
 ---
 
-### PUSH_MANUAL e tray icon
+### [M4] Retry del client socket: exponential backoff
 
-`PUSH_MANUAL` è la feature più visibile all'utente. La tray icon si comporta così:
+**Contesto**: il processo tray potrebbe non aver completato lo startup quando un task di logon viene eseguito. Il client ha bisogno di una politica di retry per gestire la finestra di avvio.
 
-- **Click sinistro** → `PUSH_MANUAL` sul vault corrente, pubblicato direttamente sull'orchestratore interno (nessun IPC — stessa JVM)
-- **Click destro** → popup con elenco vault disponibili + boolean "Save on selection"
+**Decisione**: stessa politica dell'orchestratore — exponential backoff 30s → 60s → 120s, massimo 3 tentativi.
+
+**Motivazione**: 30 secondi coprono qualsiasi finestra di startup realistica su un sistema moderno. Riutilizzare le stesse costanti di backoff dell'orchestratore mantiene la politica coerente in tutto il sistema.
+
+---
+
+### [M4] PUSH_MANUAL e comportamento della tray icon
+
+**Contesto**: l'utente ha bisogno di un modo visibile e immediato per pushare le modifiche senza aspettare il logoff.
+
+**Decisione**:
+
+- **Click sinistro** → pubblica `PUSH_MANUAL` sul vault corrente direttamente sull'orchestratore interno (stessa JVM — nessun IPC necessario)
+- **Click destro** → popup con elenco vault + boolean "Salva alla selezione"
     - Selezione vault → aggiorna `current-vault.json`
-    - Se "Save on selection" attivo → pubblica automaticamente `PUSH_MANUAL` sul vault appena selezionato
+    - Se "Salva alla selezione" è attivo → pubblica automaticamente `PUSH_MANUAL` sul vault appena selezionato
 
-"Save on selection" valutato come feature di qualità a costo implementativo minimo — non sovraingegneria.
-
----
-
-### Multi-vault
-
-Struttura `vaults.json` come registro centralizzato. Stessa politica di sicurezza di `config.properties`: file escluso da `.gitignore`, template committato.
-
-`GitService` diventa stateless — il vault viene passato come parametro ad ogni metodo. Più testabile, più sicuro in contesti concorrenti, allineato ai microservizi.
+**Motivazione**: "Salva alla selezione" è una feature di qualità a costo implementativo minimo. Il click sinistro è l'interazione principale — immediata, un gesto solo.
 
 ---
 
-### Separazione configurazione e stato
+### [M4] Multi-vault: GitService stateless
 
-`vaults.json` contiene la configurazione statica (path, remote, token). `current-vault.json` contiene lo stato mutabile (vault corrente, timestamp aggiornamento). Tenere i due insieme esporrebbe le credenziali a scritture frequenti e rischio di corruzione.
+**Contesto**: con più vault, `GitService` deve operare su directory diverse. L'implementazione attuale legge `vault.path` una volta nel costruttore e lo usa per tutte le operazioni.
 
-Principio: configurazione e stato hanno cicli di vita diversi. Separarli è un'abitudine da costruire prima di arrivare ai microservizi.
+**Decisione**: `GitService` diventa stateless — il path del vault viene passato come parametro a ogni metodo invece di essere memorizzato come campo.
+
+**Motivazione**: più testabile (nessuna dipendenza dal costruttore sulla config), più sicuro in contesti concorrenti (nessuno stato mutabile condiviso), allineato al modello di servizio stateless dei microservizi.
 
 ---
 
-### AWT vs Swing per la tray
+### [M4] Separazione vaults.json e current-vault.json
 
-`SystemTray` e `TrayIcon` sono classi AWT — non hanno equivalente Swing. Il popup del click destro può essere implementato con `PopupMenu` AWT o `JPopupMenu` Swing.
+**Contesto**: la configurazione del vault (path, remote, token) e lo stato runtime (vault corrente, timestamp ultimo aggiornamento) hanno cicli di vita diversi e requisiti di sicurezza diversi.
 
-AWT puro confermato: look nativo, integrazione con il sistema operativo, zero complessità aggiuntiva per il bridge AWT→Swing. Su Windows 10 e 11 è la scelta più stabile.
+**Decisione**: `vaults.json` contiene la configurazione statica. `current-vault.json` contiene lo stato runtime mutabile. Entrambi esclusi da `.gitignore`. `vaults.json.template` committato come riferimento.
+
+**Motivazione**: configurazione e stato cambiano a velocità diverse. Tenerli insieme esporrebbe le credenziali a scritture frequenti e rischio di corruzione. La separazione è un'abitudine da costruire prima di arrivare ai microservizi, dove config e stato sono sempre tenuti separati.
+
+---
+
+### [M4] AWT invece di Swing per la tray icon
+
+**Contesto**: `SystemTray` e `TrayIcon` sono classi AWT — non hanno equivalente Swing. Il popup del click destro può essere implementato con `PopupMenu` AWT o `JPopupMenu` Swing.
+
+**Decisione**: AWT su tutta la linea. `PopupMenu` per il menu del click destro.
+
+**Motivazione**: look and feel nativo del sistema operativo, zero complessità del bridge AWT→Swing, opzione più stabile su Windows 10 e 11.
 
 **Compatibilità target**: Windows 10 e Windows 11. Windows 8 come bonus opzionale.
 
 ---
 
-### Test end-to-end
+### [M4] hasUncommittedChanges() come guard per l'autosave invece di hasChanges()
 
-Checklist manuale, eseguita una volta prima del rilascio definitivo. Repo GitHub dedicata ai test, vault locale dedicato, token con scope limitato. Quando tutti gli 8 scenari passano, il progetto è done. Automazione sproporzionata rispetto agli obiettivi.
+**Contesto**: `hasChanges()` usa `git diff --quiet` — invisibile ai file non tracciati. Un file nuovo appare in `git status` ma non viene committato dall'autosave. Comportamento controintuitivo per qualsiasi sviluppatore familiare con Git.
+
+**Decisione**: sostituire il guard dell'autosave in `SyncOrchestrator` con `hasUncommittedChanges()` che usa `git status --porcelain` — rileva modifiche staged, modifiche non staged e file non tracciati.
+
+**Motivazione**: allineamento con l'aspettativa naturale dello sviluppatore — se `git status` lo vede, l'autosave lo committa. `hasChanges()` viene mantenuto in `GitService` per possibili usi futuri.
+
+---
+
+### [M4] .obsidian/ parzialmente tracciato nei vault
+
+**Contesto**: `.obsidian/workspace.json` salva lo stato dell'interfaccia — pannelli aperti, file attivo, posizione del cursore. Sincronizzarlo tramite `PUSH_LOGOFF` / `PULL_LOGON` significa aprire Obsidian su una seconda macchina esattamente da dove si era rimasti sulla prima.
+
+**Decisione**: tracciare il contenuto di `.obsidian/` ad eccezione dei binari dei plugin. Escludere `plugins/*/main.js` e `plugins/*/styles.css` tramite `.gitignore`.
+
+**Motivazione**: la continuità della sessione è una feature reale consegnata gratuitamente dal meccanismo di sync esistente. I binari dei plugin sono grandi e reinstallabili da Obsidian — nessun valore nel tracciarli.
+
+**Trade-off accettato**: i conflitti su `workspace.json` vengono risolti dalla strategia `theirs` — l'ultima sessione vince sempre.
+
+---
+
+## [M4] push() eseguito sempre al PUSH_LOGOFF, indipendentemente dal commit
+
+**Contesto**: l'autosave committa localmente ad ogni ciclo senza pushare sul remoto.
+Al PUSH_LOGOFF ci possono essere N commit locali accumulati da pushare anche quando la
+working tree è pulita. Il codice originale saltava il push se `commitLocal()` restituiva
+exit code non-zero (niente da committare).
+
+**Decisione**: `push()` viene chiamato sempre nel case PUSH_LOGOFF e PUSH_MANUAL,
+indipendentemente dall'exit code di `commitLocal()`.
+
+**Motivazione**: "niente da committare" e "niente da pushare" sono condizioni distinte.
+L'autosave accumula commit locali durante la sessione — il logoff è il momento in cui
+vengono trasmessi al remoto. Saltare il push in assenza di nuove modifiche locali
+vanificava l'intera pipeline autosave → push al logoff.
+
 
 ---
 
@@ -123,26 +166,26 @@ Checklist manuale, eseguita una volta prima del rilascio definitivo. Repo GitHub
 |6|`vaults.json` + `vaults.json.template`|struttura definita, escluso da `.gitignore`|
 |7|`current-vault.json`|scritto al primo avvio, aggiornato al cambio vault|
 |8|Tray icon — click sinistro|pubblica `PUSH_MANUAL` sul vault corrente|
-|9|Tray icon — click destro|popup con elenco vault + boolean "save on selection"|
+|9|Tray icon — click destro|popup con elenco vault + boolean "salva alla selezione"|
 |10|Task Scheduler — 3 task configurati|logon, logoff, autosave avviano il JAR con argomento corretto|
 |11|Checklist e2e superata|tutti gli 8 scenari validati su vault di test|
 
 ---
 
-## Rischi identificati — cosa potrebbe bloccare
+## Rischi identificati
 
 |Rischio|Probabilità|Impatto|Mitigazione|
 |---|---|---|---|
-|Messaggi stderr Git localizzati in italiano|media|alto|testare sulla macchina reale prima di finalizzare la whitelist|
-|Porta 4242 occupata su alcune macchine|bassa|medio|porta configurabile via `config.properties`|
-|Tray icon AWT su Windows 11|media|alto|testare `SystemTray.isSupported()` al bootstrap; Windows 10 è il target primario|
-|Scrittura concorrente su `current-vault.json`|media|medio|sincronizzare le scritture con `synchronized`|
-|Task Scheduler logoff non attende completamento JAR|media|alto|configurare il task con "wait for task to complete"|
-|Remote URL inesistente non ripristinato dopo crash nel test e2e|bassa|medio|script di teardown esplicito nella checklist|
+|Messaggi stderr Git localizzati in italiano su Windows|Media|Alto|testare sulla macchina reale prima di finalizzare la whitelist|
+|Porta 4242 occupata su alcune macchine|Bassa|Medio|porta configurabile via `config.properties`|
+|Tray icon AWT su Windows 11|Media|Alto|testare `SystemTray.isSupported()` al bootstrap; Windows 10 è il target primario|
+|Scrittura concorrente su `current-vault.json`|Media|Medio|sincronizzare le scritture con `synchronized`|
+|Task Scheduler logoff non attende completamento JAR|Media|Alto|configurare il task con "attendi completamento"|
+|Remote URL inesistente non ripristinato dopo crash nel test e2e|Bassa|Medio|script di teardown esplicito nella checklist|
 
 ---
 
-## Know-how da acquisire — cosa studiare prima di scrivere
+## Know-how da acquisire prima di scrivere
 
 | Area                   | Concetto                                                    | Perché serve                                 |
 | ---------------------- | ----------------------------------------------------------- | -------------------------------------------- |
@@ -151,4 +194,18 @@ Checklist manuale, eseguita una volta prima del rilascio definitivo. Repo GitHub
 | Java AWT               | Event Dispatch Thread, `SwingUtilities.invokeLater()`       | thread safety tra tray e orchestratore       |
 | JSON in Java           | `org.json` o `Jackson` — parsing e serializzazione          | protocollo socket e lettura `vaults.json`    |
 | Windows Task Scheduler | trigger logon/logoff, opzioni di esecuzione, account utente | configurazione dei 3 task                    |
-| Git internals          | stderr parsing, pattern di errore di rete                   | implementazione whitelist `NetworkException` |
+| Git internals          | parsing stderr, pattern di errore di rete                   | implementazione whitelist `NetworkException` |
+
+
+---
+
+# EXTRA DTR
+
+
+---
+
+## [M4] PULL_MANUAL — manual pull from tray icon 
+**Contesto**: un utente con due macchine sempre accese non ottiene mai un PULL_LOGON automatico. Le modifiche pushate da un dispositivo non raggiungono l'altro finché non viene eseguito un pull esplicito. 
+**Decisione**: aggiungere EventType.PULL_MANUAL con priorità 1. Accessibile tramite icona refresh per vault nel popup del click destro sulla tray icon. 
+**Motivazione**: PULL_LOGON risolve il caso normale. PULL_MANUAL risolve il caso di sessioni persistenti — macchine mai spente, server sempre attivi, utenti che lavorano su più dispositivi senza logoff. 
+**Impatto**: minimo lato backend (30 min). Lato tray: integrato naturalmente nel popup multi-vault già pianificato.
