@@ -18,29 +18,39 @@ Ogni decisione ha una motivazione. Ogni ostacolo ha un post-mortem. Ogni sprint 
 
 ```
 obsidian-portfolio/
-└── ObsidianSync Diary/
-    ├── Diagrams/           ← Diagrammi di architettura e interazione tra componenti
-    │   └── DGR_Overview.md
-    ├── Groomings/          ← Pianificazione sprint + Architecture Decision Records (stile ADR)
-    │   ├── GRM_Milestone_1.md
-    │   ├── GRM_Milestone_2.md
-    │   ├── GRM_Milestone_3.md
-    │   └── GRM_Milestone_4.md
-    ├── Milestones/         ← Retrospettive di sprint: obiettivi, problemi, cheat-sheet acquisiti
-    │   ├── MILESTONE_1.md
-    │   ├── MILESTONE_2.md
-    │   └── MILESTONE_3.md
-    ├── Roadmaps/           ← Pianificazione implementativa per milestone
-    │   └── RDM_Milestone_4.md
-    ├── Scores/             ← Valutazioni recruiter-style e personal trainer
-    │   ├── SCR_Milestone_2.md
-    │   └── SCR_Milestone_3.md
-    ├── Troubleshooting/    ← Post-mortem su problemi ambientali e di sviluppo
-    │   ├── TRB_Milestone_2.md
-    │   └── TRB_Milestone_3.md
-    └── Tutorials/          ← Cheat-sheet tecnici acquisiti sprint per sprint
-        ├── TTR_Milestone_2.md
-        └── TTR_Milestone_3.md
+├── ObsidianSync_Diary/
+│   ├── Diagrams/           ← Diagrammi di architettura e interazione tra componenti
+│   │   └── DGR_Overview.md
+│   ├── Groomings/          ← Pianificazione sprint + Architecture Decision Records (stile ADR)
+│   │   ├── GRM_Milestone_1.md
+│   │   ├── GRM_Milestone_2.md
+│   │   ├── GRM_Milestone_3.md
+│   │   └── GRM_Milestone_4.md
+│   ├── Milestones/         ← Retrospettive di sprint: obiettivi, problemi, cheat-sheet acquisiti
+│   │   ├── MILESTONE_1.md
+│   │   ├── MILESTONE_2.md
+│   │   └── MILESTONE_3.md
+│   ├── Roadmaps/           ← Pianificazione implementativa per milestone
+│   │   └── RDM_Milestone_4.md
+│   ├── Scores/             ← Valutazioni recruiter-style e personal trainer
+│   │   ├── @Alessandro/    ← Punteggi sviluppatore + punteggi coaching per milestone
+│   │   │   ├── CCH_Milestone_4.md
+│   │   │   ├── SCR_Milestone_2.md
+│   │   │   ├── SCR_Milestone_3.md
+│   │   │   └── SCR_Milestone_4.md
+│   │   └── @Gabriela/      ← Punteggi junior developer in formazione
+│   │       └── SCR_Milestone_4.md
+│   ├── Troubleshooting/    ← Post-mortem su problemi ambientali e di sviluppo
+│   │   ├── TRB_Milestone_2.md
+│   │   └── TRB_Milestone_3.md
+│   └── Tutorials/          ← Cheat-sheet tecnici acquisiti sprint per sprint
+│       ├── TTR_Milestone_2.md
+│       ├── TTR_Milestone_3.md
+│       └── TTR_Milestone_4.md
+└── uf-test_Diary/          ← Ricerca: Union-Find applicato al Property-Based Testing
+    ├── Decisions/
+    ├── Metrics/
+    └── Milestones/
 ```
 
 ---
@@ -59,28 +69,34 @@ obsidian-portfolio/
 - **Retry con exponential backoff** — i fallimenti di rete innescano fino a 3 tentativi con delay progressivi (30s → 60s → 120s)
 - **Autosave differenziale** — committa solo quando `git status --porcelain` rileva modifiche effettive
 - **Risoluzione conflitti** — `git pull -X theirs` con audit logging completo; il remoto è la fonte di verità
-- **Dependency inversion** — l'interfaccia `NotificationHook` disaccoppia l'orchestratore da qualsiasi implementazione futura (tray icon, toast, ecc.)
+- **Dependency inversion** — l'interfaccia `NotificationHook` disaccoppia l'orchestratore da qualsiasi implementazione futura
+
+---
+
+## Il progetto parallelo: uf-test
+
+Ricerca originale sull'applicazione della struttura dati **Union-Find** al **Property-Based Testing**. L'idea: usare partizioni matematicamente disgiunte come generatori di input controllati per jqwik, garantendo risultati deterministici con input casuali.
+
+Documentato nel `uf-test_Diary/` — sviluppato in parallelo a ObsidianSync, destinato all'integrazione nei test dei microservizi di ToDoList 2.0.
 
 ---
 
 ## Come leggere questo vault
 
-**Inizia con** `Groomings/GRM_Milestone_1.md` — le scelte architetturali fatte prima di scrivere una riga di codice. Ogni trade-off è documentato con contesto, motivazione e alternative scartate.
+**Inizia con** `Diagrams/DGR_Overview.md` — il diagramma completo delle interazioni tra componenti, con ruoli codificati a colori e flussi annotati. È la mappa dell'intero sistema.
 
-**Poi leggi** `Milestones/MILESTONE_1.md` — la retrospettiva: cosa è stato costruito, cosa si è rotto e cosa si è imparato. Seguita da `MILESTONE_2.md` per lo sprint sull'architettura event-driven e `MILESTONE_3.md` per la suite di test.
+**Poi leggi** `Groomings/GRM_Milestone_1.md` — le scelte architetturali fatte prima di scrivere una riga di codice. Ogni trade-off è documentato con contesto, motivazione e alternative scartate. Seguilo con `Milestones/MILESTONE_1.md` per la retrospettiva sulla prima versione funzionante.
 
-**Prosegui con** `Groomings/GRM_Milestone_2.md` — come è stato pianificato lo sprint successivo: rischi identificati, priorità stabilite, incognite affrontate prima di toccare la tastiera.
+**Per le milestone successive**, il pattern si ripete e si arricchisce: `GRM` (pianificazione e decisioni) → `RDM` (roadmap implementativa) → `TRB` (problemi incontrati) → `TTR` (cheat-sheet acquisiti) → `SCR` (valutazioni) → `MILESTONE` (retrospettiva finale).
 
 **Quando qualcosa si rompe**, `Troubleshooting/` mostra come è stato diagnosticato e risolto — dai conflitti Git alla misconfiguration del JDK e alla corruzione della cache di IntelliJ.
 
-**Per la panoramica visiva**, `Diagrams/DGR_Overview.md` contiene il diagramma completo delle interazioni tra componenti con ruoli codificati a colori.
-
-**Per la pianificazione implementativa**, `Roadmaps/` contiene l'ordine di delivery suggerito per ogni milestone con analisi dei rischi.
+**Per il coaching**, `Scores/@Alessandro/CCH_Milestone_*` contiene le valutazioni ricavate specificamente nel percorso come coach durante i vari sprint che hanno composto ogni milestone. `Scores/@Gabriela/` documenta il percorso parallelo di una junior developer in formazione — metriche di crescita sprint per sprint.
 
 ---
 
 ## About
 
-**Alessandro De Prato** · Full Stack Developer
+**Alessandro De Prato** · Full Stack Developer [Portfolio](https://aledep10.github.io/) · [GitHub](https://github.com/AleDeP10) · [LinkedIn](https://www.linkedin.com/in/alessandro-de-prato)
 
-[Portfolio](https://aledep10.github.io/) · [Portfolio Vault](https://github.com/AleDeP10/obsidian-portfolio) · [GitHub](https://github.com/AleDeP10) · [LinkedIn](https://www.linkedin.com/in/alessandro-de-prato)
+**Gabriela Belmani** · Junior Java Developer in formazione [GitHub](https://github.com/Belmani) · [LinkedIn](https://www.linkedin.com/in/gabriela-da-sa%C3%BAde-belmani-tumfart)

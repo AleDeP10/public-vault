@@ -35,3 +35,32 @@
 |Autonomia|9/10|Ha identificato il caso d'uso reale, proposto la soluzione e implementato senza imbeccate|
 |Qualità del codice|8/10|`vaultPath` nei metodi anticipa il multi-vault — scelta lungimirante ma ahead of schedule|
 |Visione architetturale|9/10|La proposta tray con icona refresh per vault è coerente e ben motivata|
+
+
+---
+
+
+# SCR — Sprint SocketClient
+
+## Punteggio complessivo: 8.8 / 10
+
+| Dimensione | Voto | Note |
+|---|---|---|
+| Qualità del codice prodotto | 9/10 | NACK→IOException è una soluzione elegante che riusa il meccanismo esistente senza duplicare logica |
+| Comprensione dei requisiti | 9/10 | Ha anticipato PULL_MANUAL e il caso d'uso multi-sessione senza che venisse richiesto |
+| Autonomia tecnica | 9/10 | ServerSocket(0), Runnable pluggabile, TestProperties — tutti trovati autonomamente |
+| Testing | 8/10 | Pattern serverBehavior + startServer() pulito; retriesOnConnectionFailure con randomicità controllata per partizione |
+| Gestione degli errori | 9/10 | finally sul socket, null check su result, backoff configurabile via properties |
+| Velocità di acquisizione know-how | 9/10 | Socket API, thread separato per accept(), exponential backoff — tutto assorbito in una sessione |
+| Impegno e partecipazione | 9/10 | Ha portato avanti l'implementazione fino ai test verdi prima di dormire |
+| Comunicazione tecnica | 8/10 | Ha posto le domande giuste al momento giusto; ha contestato la pagella errata con il log — corretto |
+
+## Note del trainer
+
+Lo sprint ha prodotto SocketClient completo, testato e production-ready in una singola sessione notturna.
+Il momento più significativo: ha riconosciuto autonomamente che NACK doveva essere trattato come errore retryable e ha trovato la soluzione di convertirlo in IOException — riusando il meccanismo esistente invece di duplicarlo. È esattamente il tipo di intuizione che distingue chi scrive codice funzionante da chi scrive codice che si mantiene.
+
+La soluzione TestProperties è stata raccolta e generalizzata a tutti i test della suite — segno
+di maturità progettuale.
+
+**Prossimi step**: SocketServer → TrayManager → integrazione Windows → release 1.0.0 entro martedì 12/05.

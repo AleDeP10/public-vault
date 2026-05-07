@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "uf-test_Diary/Decisions/DTR_Milestone_01.md",
+                "file": "README.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "DTR_Milestone_01"
+              "title": "README"
             }
           }
         ],
@@ -68,7 +68,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "\"git flow\"",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -200,13 +200,20 @@
   },
   "active": "85c5fdab43d5e85c",
   "lastOpenFiles": [
-    "ObsidianSync_Diary/Tutorials/Senza nome.md",
+    "ObsidianSync_Diary/Scores/@Gabriela/SCR_Milestone_4.md",
+    "ObsidianSync_Diary/Scores/@Alessandro/CCH_Milestone_4.md",
+    "ObsidianSync_Diary/Scores/@Alessandro/SCR_Milestone_2.md",
+    "ObsidianSync_Diary/Scores/@Gabriela",
+    "ObsidianSync_Diary/Scores/@Alessandro/SCR_Milestone_4.md",
+    "ObsidianSync_Diary/Scores/@Alessandro",
+    "ObsidianSync_Diary/Groomings/GRM_Milestone_4.md",
+    "ObsidianSync_Diary/Milestones/MILESTONE_3.md",
+    "ObsidianSync_Diary/Tutorials/TTR_Milestone_2.md",
     "uf-test_Diary/Decisions/DTR_Milestone_01.md",
+    "ObsidianSync_Diary/Tutorials/Senza nome.md",
     "uf-test_Diary/Metrics/MTR_Usability_01.md",
     "ObsidianSync_Diary/Milestones/MILESTONE_1.md",
     "ObsidianSync_Diary/Milestones/MILESTONE_2.md",
-    "ObsidianSync_Diary/Scores/SCR_Milestone_4.md",
-    "ObsidianSync_Diary/Groomings/GRM_Milestone_4.md",
     "ObsidianSync_Diary/Tutorials/TTR_Milestone_4.md",
     "README.md",
     "uf-test_Diary/Decisions",
@@ -215,26 +222,19 @@
     "uf-test_Diary/Scores",
     "uf-test_Diary/Milestones",
     "uf-test_Diary",
-    "ObsidianSync_Diary/Tutorials/TTR_Milestone_2.md",
     "ObsidianSync_Diary/Tutorials/TTR_Milestone_3.md",
-    "ObsidianSync_Diary/Scores/SCR_Milestone_3.md",
+    "ObsidianSync_Diary/Scores/@Alessandro/SCR_Milestone_3.md",
     "ObsidianSync_Diary/Roadmaps/RDM_Milestone_4.md",
-    "ObsidianSync_Diary/Scores/SCR_Milestone_2.md",
     "ObsidianSync_Diary/Groomings/GRM_Milestone_3.md",
     "ObsidianSync_Diary/Groomings/GRM_Milestone_1.md",
     "ObsidianSync_Diary/Roadmaps",
-    "ObsidianSync_Diary/Milestones/MILESTONE_3.md",
     "Nuovo Documento di testo.txt",
     "ObsidianSync_Diary/Troubleshooting/TRB_Milestone_3.md",
     "ObsidianSync_Diary/Troubleshooting/TRB_Milestone_2.md",
     "ObsidianSync_Diary/Groomings/GRM_Milestone_2.md",
     "ObsidianSync_Diary/Diagrams/DGR_Overview.md",
-    "ObsidianSync_Diary/Tutorials",
-    "ObsidianSync_Diary/Troubleshooting",
     "ObsidianSync Diary/Scores/SCR_Milestone_3.md",
     "ObsidianSync Diary/Scores/SCR_Milestone_2.md",
-    "ObsidianSync Diary/Groomings/GRM_Milestone_3.md",
-    "ObsidianSync Diary/Groomings/GRM_Milestone_2.md",
-    "ObsidianSync Diary/Tutorials/TTR_Milestone_3.md"
+    "ObsidianSync Diary/Groomings/GRM_Milestone_3.md"
   ]
 }
