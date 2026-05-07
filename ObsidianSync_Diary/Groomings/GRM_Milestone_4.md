@@ -209,3 +209,27 @@ vanificava l'intera pipeline autosave → push al logoff.
 **Decisione**: aggiungere EventType.PULL_MANUAL con priorità 1. Accessibile tramite icona refresh per vault nel popup del click destro sulla tray icon. 
 **Motivazione**: PULL_LOGON risolve il caso normale. PULL_MANUAL risolve il caso di sessioni persistenti — macchine mai spente, server sempre attivi, utenti che lavorano su più dispositivi senza logoff. 
 **Impatto**: minimo lato backend (30 min). Lato tray: integrato naturalmente nel popup multi-vault già pianificato.
+
+---
+
+## [M4] Caller logging rimandato a framework di logging maturo
+
+**Contesto**: durante il debugging di `mvn test`, è emersa la necessità di identificare
+programmaticamente il chiamante in ogni riga di log — per distinguere da quale test o
+componente proviene un determinato messaggio senza analisi manuale dello stack.
+
+**Decisione**: non implementare il caller logging in `LogService`. Rimandato.
+
+**Motivazione**: `Thread.currentThread().getStackTrace()` è nativo Java e tecnicamente
+fattibile, ma introduce rumore in produzione — ogni riga porta il nome del chiamante
+anche quando non è utile. La soluzione standard è un framework di logging maturo
+(slf4j + logback) con MDC (Mapped Diagnostic Context), che gestisce questa funzionalità
+in modo configurabile per ambiente. Aggiungere una soluzione custom ora significherebbe
+riscriverla quando si adotterà logback nei microservizi.
+
+**Principio**: KISS — Better Done Than Perfect. Il valore non giustifica l'effort
+in questa fase del progetto.
+
+**Prossimo step**: quando ObsidianSync verrà integrato nell'architettura a microservizi
+di ToDoList 2.0, `LogService` verrà sostituito da slf4j + logback. Il caller logging
+sarà disponibile gratuitamente tramite MDC senza nessuna riga di codice aggiuntiva.
