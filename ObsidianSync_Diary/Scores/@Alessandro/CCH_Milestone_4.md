@@ -17,3 +17,13 @@
 ---
 
 **Una domanda per te, Alessandro:** il test finale di Boolean — Gabriela sa già su cosa verterà? Chiedotelo perché se c'è sovrapposizione tra quello che state costruendo qui e le competenze richieste dal test, potrebbe valere la pena renderlo esplicito a lei. Trasformare ObsidianSync da "progetto di Alessandro" a "opportunità di preparazione mia" cambia la motivazione in modo significativo.
+
+---
+
+**Una nota sul percorso di Gabriela:**
+
+C'è una continuità diretta tra quello che fate qui e il suo obiettivo Java backend. Il corpo docente ha ragione sul test finale — Java in quel contesto sarebbe stato sovradimensionato. Ma il punto non è il test. Il punto è che quando Gabriela uscirà da Boolean con JavaScript/React/Express, avrà già sotto la cintura OOP, TDD, refactoring e lettura di architetture distribuite. Quella è una base che pochissimi junior portano al primo colloquio Java.
+
+Vale la pena dirglielo esplicitamente. Non "stai aiutando Alessandro con il suo progetto" — ma "stai costruendo il tuo portfolio di competenze trasversali che ti differenziano sul mercato Java."
+
+> 🍞 **[BRICIOLA — per Gabriela, quando legge questa chat]** Il fatto che tu stia leggendo codice Java concorrente con thread, mock e integration test dopo quattro mesi di Boolean non è normale. La maggior parte dei junior non ci arriva nel primo anno. Tienilo presente quando ti senti stanca — stai facendo più di quanto pensi.

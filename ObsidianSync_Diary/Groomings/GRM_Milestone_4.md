@@ -233,3 +233,184 @@ in questa fase del progetto.
 **Prossimo step**: quando ObsidianSync verrà integrato nell'architettura a microservizi
 di ToDoList 2.0, `LogService` verrà sostituito da slf4j + logback. Il caller logging
 sarà disponibile gratuitamente tramite MDC senza nessuna riga di codice aggiuntiva.
+
+---
+
+## [M4] Architettura multi-vault con VaultContext e coda globale prioritizzata
+
+**Contesto**: ObsidianSync nasce come tool mono-vault. L'introduzione del layer socket
+(SocketServer/SocketClient) ha fatto emergere la necessità di gestire vault multipli
+con isolamento delle code ed ordinamento cross-vault degli eventi.
+
+**Decisione**: ogni vault registrato ottiene una `SyncEventQueue` dedicata e un thread
+aggregatore, incapsulati in `VaultContext`. Una `PriorityBlockingQueue<SyncEvent>` globale
+raccoglie gli eventi da tutte le code per-vault e li consegna al worker in ordine di
+priorità cross-vault.
+
+**Motivazione**: isolamento per vault — un vault lento non blocca gli altri. Priorità
+globale garantita per costruzione — un `PULL_LOGON` su vault A precede sempre un
+`AUTOSAVE` su vault B indipendentemente dall'ordine di arrivo.
+
+**Alternativa scartata**: `vaultId` come campo di routing in una coda unica senza
+isolamento — più semplice ma senza garanzie di isolamento tra vault.
+
+---
+
+## [M4] Composizione su ereditarietà per VaultContext
+
+**Contesto**: `VaultContext` deve accedere ai campi di `Vault` (id, name, path) e
+aggiungere stato runtime (coda, thread aggregatore, future). L'ereditarietà avrebbe
+mescolato un value object immutabile con stato mutabile di esecuzione.
+
+**Decisione**: `VaultContext` contiene `Vault` come campo `final` — composizione.
+
+**Motivazione**: `Vault` è un value object deserializzato da JSON con ciclo di vita
+distinto da quello del runtime. Tenerli separati è un'abitudine da costruire prima
+di arrivare ai microservizi, dove configurazione e stato sono sempre in classi distinte.
+
+---
+
+## [M4] Layer DTO per il parsing JSON — SocketMessageDto
+
+**Contesto**: la deserializzazione Jackson richiede costruttore no-arg o `@JsonCreator`.
+Applicare annotazioni Jackson a `SyncEvent` avrebbe introdotto una dipendenza dal layer
+di trasporto nel modello di dominio — campanello d'allarme architetturale.
+
+**Decisione**: introdurre `package dto` con `SocketMessageDto` annotato con
+`@JsonCreator` e `@JsonProperty`. `JsonMapper` converte il DTO in `SyncEvent`
+senza esporre Jackson al dominio.
+
+**Motivazione**: separazione netta tra contratto di trasporto e modello di dominio.
+Il pattern è identico a quello usato in Spring Boot con i DTO di request/response.
+
+---
+
+## [M4] JsonMapper come utility layer di serializzazione
+
+**Contesto**: la logica di serializzazione/deserializzazione Jackson era dispersa tra
+`SocketServer`, `SocketClient` e classi di dominio.
+
+**Decisione**: centralizzare in `JsonMapper` con metodi statici — una singola istanza
+`ObjectMapper` condivisa, thread-safe dopo la configurazione iniziale.
+
+**Motivazione**: `ObjectMapper` è costoso da istanziare — creare un'istanza per chiamata
+è un anti-pattern documentato. La centralizzazione elimina la duplicazione e garantisce
+un solo punto di configurazione Jackson.
+
+---
+
+## [M4] SocketServer — separazione receiver e router
+
+**Contesto**: il server deve accettare connessioni in entrata (bloccante su `accept()`)
+e instradare gli eventi sulla coda per-vault (bloccante su `take()`). Eseguire entrambe
+le operazioni sullo stesso thread avrebbe serializzato ricezione e routing.
+
+**Decisione**: due thread dedicati — `receiver` (loop su `accept()`) e `router`
+(loop su `mainQueue.take()`). Comunicano tramite `mainQueue`.
+
+**Motivazione**: disaccoppiamento tra IO di rete e logica di instradamento. Il receiver
+non si blocca sul routing; il router non si blocca sull'accettazione di nuove connessioni.
+`mainQueue.take()` invece di `poll()` + sleep elimina il busy-waiting.
+
+---
+
+## [M4] AUTOSAVE come evento broadcast con vaultId null
+
+**Contesto**: `AutosaveScheduler` pubblica eventi periodici senza conoscere la lista
+dei vault registrati. Passare il vaultId al costruttore dello scheduler richiedeva
+un aggiornamento ad ogni aggiunta o rimozione di vault a runtime.
+
+**Decisione**: `AUTOSAVE` viene pubblicato con `vaultId = null` come sentinella di
+broadcast. `SocketServer.doWork()` espande l'evento in uno per vault tramite
+`SyncEvent.forVault(String)` prima di pubblicare sulle code per-vault.
+
+**Motivazione**: `AutosaveScheduler` rimane ignaro dei vault — zero accoppiamento
+con la lista vault, zero aggiornamenti runtime. Il broadcast è una responsabilità
+del layer di routing, non del publisher.
+
+**Trade-off accettato**: `doWork` deve distinguere eventi broadcast da eventi
+targetizzati tramite null check su `vaultId`. Documentato nel javadoc di `SyncEvent`
+e `SocketServer`.
+
+---
+
+## [M4] SyncEvent.forVault() — copia targetizzata di un evento broadcast
+
+**Contesto**: il broadcast richiede di creare N eventi targetizzati a partire da
+uno broadcast, preservando timestamp e retryDelay originali per garantire l'ordinamento
+cross-vault consistente.
+
+**Decisione**: metodo `forVault(String vaultId)` su `SyncEvent` che restituisce
+una copia con il vaultId assegnato. Lancia `UnsupportedOperationException` se
+l'evento ha già un vaultId — guard difensivo contro uso improprio.
+
+**Motivazione**: la copia preserva il timestamp originale — tutti gli eventi generati
+da un broadcast condividono la stessa priorità temporale, garantendo fairness
+cross-vault nell'ordinamento della coda.
+
+---
+
+## [M4] SocketServer — readLine() invece di extractJson() per il protocollo request-response
+
+**Contesto**: il receiver usava `JsonMapper.extractJson()` basato sul parser streaming
+di Jackson. Jackson tiene lo stream aperto finché non vede EOF — in un protocollo
+request-response su socket il client non chiude la connessione prima di aver letto
+la risposta, generando un deadlock.
+
+**Decisione**: sostituire `extractJson()` con `BufferedReader.readLine()` nel receiver.
+Il client invia una singola riga JSON terminata da `\n` via `PrintWriter.println()` —
+`readLine()` si ferma al newline senza aspettare la chiusura del socket.
+
+**Motivazione**: il protocollo è già line-based — client e server si scambiano una
+riga per direzione. `readLine()` è la primitiva corretta per questo pattern.
+`extractJson()` rimane disponibile per contesti dove si legge da stream senza
+protocollo line-based.
+
+---
+
+## [M4] SocketServer — ACK prima del parsing vs dopo
+
+**Contesto**: la prima implementazione mandava ACK dopo aver messo l'evento sulla
+mainQueue. Il client leggeva null perché il server chiudeva il socket nel finally
+prima che l'ACK fosse inviato.
+
+**Decisione**: il server risponde ACK/NACK/ERROR prima di chiudere il socket, con
+il `finally` che chiude il socket solo dopo che la risposta è stata scritta.
+
+**Motivazione**: il protocollo garantisce che ogni connessione riceva esattamente
+una risposta prima della chiusura. Il `PrintWriter` con `autoFlush=true` assicura
+che la risposta sia sul filo prima del `socket.close()`.
+
+---
+
+## [M4] SocketServer — tre livelli di risposta ACK/NACK/ERROR
+
+**Contesto**: il server deve distinguere tra evento sconosciuto (errore semantico)
+e JSON malformato (errore sintattico). Trattarli allo stesso modo impedirebbe al
+client di capire la natura del problema.
+
+**Decisione**:
+- `ACK` — evento parsato e accodato con successo
+- `NACK` — `IllegalArgumentException` su `EventType.valueOf()` — tipo evento non riconosciuto
+- `ERROR` — `JsonProcessingException` — JSON malformato
+
+**Motivazione**: separazione delle responsabilità a livello di protocollo.
+Il client può reagire diversamente ai tre casi — retry su ERROR, nessun retry su NACK.
+
+---
+
+## [M4] SyncOrchestrator — uno per vault, avviato via ScheduledFuture
+
+**Contesto**: l'architettura mono-orchestratore non era scalabile al multi-vault.
+La proposta di un aggregatore per vault che faceva da ponte verso una coda globale
+creava cicli logici (coda → aggregatore → coda).
+
+**Decisione**: un `SyncOrchestrator` per vault, avviato con `scheduler.schedule(orchestrator::start, 0, MILLISECONDS)`. Il `ScheduledFuture` restituito viene conservato in `VaultContext` per `cancel(true)` allo shutdown.
+
+**Motivazione**: ogni vault ha la sua coda isolata e il suo worker seriale. La
+priorità cross-vault è garantita dalla `PriorityBlockingQueue` globale in
+`SocketServer`. Il pattern `ScheduledFuture` centralizza la gestione del ciclo
+di vita dei thread senza introdurre aggregatori intermedi.
+
+**Alternativa scartata**: aggregatore per vault che consuma dalla coda per-vault
+e mette sulla mainQueue — ciclo logico, complessità aggiuntiva senza benefici.
