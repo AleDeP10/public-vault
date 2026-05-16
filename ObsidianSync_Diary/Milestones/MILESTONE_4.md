@@ -67,26 +67,3 @@ GitService (stateless, vaultPath param)
 | `IllegalThreadStateException`      | `start()` chiamato due volte sullo stesso thread                     | `scheduler.schedule()` una sola volta per vault                                              |
 | Test bloccato su `queue.consume()` | Coda sbagliata — quella del test, non del VaultContext               | Rimossa asserzione ridondante, `await` su mock                                               |
 | `gitService.pull()` mai chiamato   | `register()` chiamato prima di `start()` — orchestratore non avviato | `scheduler.schedule()` avvia l'orchestratore in `register()`, indipendentemente da `start()` |
-
----
-
-## Metriche di sessione
-
-**Sessioni M4**: ~12 ore distribuite su 4 giorni (10-13 maggio 2026)
-
-**Voti medi per sessione**: 8.5/10
-
-**Note personal trainer**: la milestone ha avuto un profilo di difficoltà alto — socket, threading, e multi-vault in parallelo. Nessun punto è stato saltato, ogni decisione è stata discussa e motivata. Il debugging del deadlock `readLine`/`extractJson` è stato risolto con ragionamento autonomo dal log dei timestamp. La tenuta sotto pressione (sessione serale con le palle girate) è stata buona — il problema è stato isolato e risolto senza cedere alla frustrazione.
-
----
-
-## Prossimo sprint — Milestone 5
-
-| Componente                      | Priorità       |
-| ------------------------------- | -------------- |
-| `TrayManager` — AWT SystemTray  | 🔴             |
-| Task Scheduler Windows — 3 task | 🔴             |
-| `Main` — modalità tray          | 🔴             |
-| Test e2e manuale su vault reale | 🟡             |
-| Release 1.0.0                   | 🟡             |
-| Sito hayat-bakery MVP           | 🟡 (parallelo) |

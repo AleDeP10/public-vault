@@ -141,13 +141,13 @@ Motivazione: resilienza — l'autosave funziona anche senza rete. Separazione de
 
 ## 2. Rischi identificati — cosa potrebbe bloccare
 
-|Rischio|Probabilità|Impatto|Mitigazione|
-|---|---|---|---|
-|`PriorityBlockingQueue` non supporta rimozione selettiva per latest-wins|alta|alto|valutare struttura custom o lock esplicito su rimozione|
-|Thread del worker loop non termina correttamente allo shutdown JVM|media|medio|gestire `interrupt()` nel loop e shutdown hook|
-|`gitService.stashPop()` fallisce se stash è vuoto|alta|basso|guard: eseguire stashPop solo se stash non è vuoto|
-|`commitLocal()` senza modifiche genera commit vuoto|media|basso|`hasChanges()` come guard obbligatorio prima di ogni commit|
-|Retry schedula re-publish ma il worker è già fermo|bassa|alto|usare `ScheduledExecutorService` per il delay, non `Thread.sleep()`|
+| Rischio                                                                  | Probabilità | Impatto | Mitigazione                                                         |
+| ------------------------------------------------------------------------ | ----------- | ------- | ------------------------------------------------------------------- |
+| `PriorityBlockingQueue` non supporta rimozione selettiva per latest-wins | alta        | alto    | valutare struttura custom o lock esplicito su rimozione             |
+| Thread del worker loop non termina correttamente allo shutdown JVM       | media       | medio   | gestire `interrupt()` nel loop e shutdown hook                      |
+| `gitService.stashPop()` fallisce se stash è vuoto                        | alta        | basso   | guard: eseguire stashPop solo se stash non è vuoto                  |
+| `commitLocal()` senza modifiche genera commit vuoto                      | media       | basso   | `hasChanges()` come guard obbligatorio prima di ogni commit         |
+| Retry schedula re-publish ma il worker è già fermo                       | bassa       | alto    | usare `ScheduledExecutorService` per il delay, non `Thread.sleep()` |
 
 ---
 

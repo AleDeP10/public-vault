@@ -23,26 +23,36 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "README.md",
+                "file": "ObsidianSync_Diary/Groomings/GRM_Milestone_6.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "README"
+              "title": "GRM_Milestone_6"
             }
           },
           {
             "id": "d9419b7bca94e0aa",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "image",
               "state": {
-                "file": "ObsidianSync_Diary/Scores/@Alessandro/SCR_Milestone_4.md",
-                "mode": "source",
-                "source": false
+                "file": "ObsidianSync_Diary/Diagrams/IMG_MainWindow.png"
               },
-              "icon": "lucide-file",
-              "title": "SCR_Milestone_4"
+              "icon": "lucide-image",
+              "title": "IMG_MainWindow"
+            }
+          },
+          {
+            "id": "4420c84552af5d66",
+            "type": "leaf",
+            "state": {
+              "type": "image",
+              "state": {
+                "file": "ObsidianSync_Diary/Diagrams/IMG_UI_Architecture.png"
+              },
+              "icon": "lucide-image",
+              "title": "IMG_UI_Architecture"
             }
           }
         ],
@@ -210,6 +220,24 @@
   },
   "active": "85c5fdab43d5e85c",
   "lastOpenFiles": [
+    "ObsidianSync_Diary/Groomings/GRM_Milestone_5.md",
+    "ObsidianSync_Diary/Diagrams/DGR_User_Interface.md",
+    "ObsidianSync_Diary/Diagrams/IMG_UI_Architecture.png",
+    "ObsidianSync_Diary/Groomings/GRM_Milestone_6.md",
+    "ObsidianSync_Diary/Milestones/MILESTONE_4.md",
+    "ObsidianSync_Diary/Milestones/MILESTONE_3.md",
+    "ObsidianSync_Diary/Milestones/MILESTONE_2.md",
+    "ObsidianSync_Diary/Milestones/MILESTONE_1.md",
+    "ObsidianSync_Diary/Diagrams/DGR_Overview.md",
+    "ObsidianSync_Diary/Diagrams/IMG_UI_Architecture 1.png",
+    "ObsidianSync_Diary/Roadmaps/RDM_Milestone_5.md",
+    "ObsidianSync_Diary/Roadmaps/RDM_Milestone_4.md",
+    "ObsidianSync_Diary/Groomings/GRM_Milestone_2.md",
+    "ObsidianSync_Diary/Groomings/GRM_Milestone_1.md",
+    "ObsidianSync_Diary/Diagrams/IMG_MainWindow.png",
+    "Pasted image 20260516001426.png",
+    "ObsidianSync_Diary/Scores/@Alessandro/SCR_Milestone_4.md",
+    "README.md",
     "ObsidianSync_Diary/Experiments/EXP_Push_test.md",
     "ObsidianSync_Diary/Experiments/EXP_Conflict_strategy.md",
     "ObsidianSync_Diary/Experiments/EXP_St.Thomas_skepticism.md",
@@ -221,24 +249,9 @@
     "ObsidianSync_Diary/Experiments/Gabriela_experiment.md",
     "ObsidianSync_Diary/Experiments",
     "ObsidianSync_Diary/Nuova cartella",
-    "ObsidianSync_Diary/Milestones/MILESTONE_4.md",
-    "ObsidianSync_Diary/Milestones/MILESTONE_3.md",
-    "ObsidianSync_Diary/Milestones/MILESTONE_2.md",
-    "ObsidianSync_Diary/Milestones/MILESTONE_1.md",
     "ObsidianSync_Diary/Groomings/GRM_Milestone_4.md",
-    "ObsidianSync_Diary/Diagrams/DGR_Overview.md",
-    "ObsidianSync_Diary/Scores/@Alessandro/SCR_Milestone_4.md",
     "ObsidianSync_Diary/Tutorials/TTR_Milestone_4.md",
-    "README.md",
     "Senza nome.canvas",
-    "uf-test_Diary/Metrics/MTR_Usability_01.md",
-    "ObsidianSync_Diary/Troubleshooting/TRB_Milestone_2.md",
-    "ObsidianSync_Diary/Roadmaps/RDM_Milestone_4.md",
-    "ObsidianSync_Diary/Scores/@Gabriela/SCR_Milestone_4.md",
-    "ObsidianSync_Diary/Scores/@Alessandro/CCH_Milestone_4.md",
-    "ObsidianSync_Diary/Scores/@Alessandro/SCR_Milestone_2.md",
-    "ObsidianSync_Diary/Scores/@Alessandro/SCR_Milestone_3.md",
-    "ObsidianSync_Diary/Groomings/GRM_Milestone_2.md",
     "ObsidianSync_Diary/Scores/@Gabriela",
     "ObsidianSync_Diary/Scores/@Alessandro",
     "uf-test_Diary/Decisions",

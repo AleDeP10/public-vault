@@ -1,4 +1,4 @@
-### Overall architecture
+# Overall architecture
 ```mermaid
 graph TD
     Main["**Main**\nargs · properties · wiring"]:::purple
