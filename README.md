@@ -97,6 +97,6 @@ Documentato nel `uf-test_Diary/` — sviluppato in parallelo a ObsidianSync, des
 
 ## About
 
-**Alessandro De Prato** · Full Stack Developer [Portfolio](https://aledep10.github.io/) · [GitHub](https://github.com/AleDeP10) · [LinkedIn](https://www.linkedin.com/in/alessandro-de-prato)
+**Alessandro De Prato** · Senior Sofware Engineer - Tech Lead [Portfolio](https://aledep10.github.io/) · [GitHub](https://github.com/AleDeP10) · [Public Vault]([https://github.com/AleDeP10](https://github.com/AleDeP10/obsidian-portfolio)) ·  [LinkedIn](https://www.linkedin.com/in/alessandro-de-prato)
 
-**Gabriela Belmani** · Junior Java Developer in formazione [GitHub](https://github.com/Belmani) · [LinkedIn](https://www.linkedin.com/in/gabriela-da-sa%C3%BAde-belmani-tumfart)
+**Gabriela Belmani** · Software Engineer [GitHub](https://github.com/Belmani) · [LinkedIn](https://www.linkedin.com/in/gabriela-da-sa%C3%BAde-belmani-tumfart)

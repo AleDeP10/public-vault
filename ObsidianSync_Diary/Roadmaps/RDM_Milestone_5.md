@@ -1,53 +1,127 @@
-## Roadmap M5 — ordine implementativo
+### Roadmap M5 — Layer 1 aggiornato
 
-Tre layer in sequenza. Niente UI finché il backend non regge.
-
----
-
-### Layer 1 — Refactoring backend (prerequisiti bloccanti)
-
-**1. `EventType`** — rimozione `PULL_MANUAL` e `PUSH_MANUAL`, aggiunta `SYNCHRONIZE` con priorità 2. Impatta tutta la suite — da fare per prima.
-
-**2. `GitService`** — nuovo metodo `synchronize(vaultPath)` che implementa l'algoritmo SYNCHRONIZE del GRM: commit locale se dirty → pull → se conflitto: abort, backup FIFO, pull -X ours, snapshot remote-conflicts, push. Questo è il metodo più complesso della milestone.
-
-**3. `SyncOrchestrator`** — aggiornamento switch per gestire `SYNCHRONIZE`, rimozione case `PULL_MANUAL`/`PUSH_MANUAL`.
-
-**4. `VaultService`** — aggiunta vincolo unicità `vault.name` con `VaultException` su duplicato. Validazione all'avvio.
-
-**5. `LogService`** — refactoring multi-vault: il log deve includere il vault corrente nel contesto. Ogni `VaultContext` ha il suo `LogService` o il `LogService` condiviso riceve il `vaultId` come parametro.
+| #   | Step                                                                                        | Stato                                                 |
+| --- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| 1   | `EventType` — `SYNCHRONIZE` al posto di `PULL_MANUAL`/`PUSH_MANUAL`                         | ✅                                                     |
+| 2   | `GitService.synchronize()` — conflict strategy completa                                     | 🔄 struttura presente, FIFO e PathMatcher da chiudere |
+| 3   | `SyncOrchestrator` — switch aggiornato                                                      | ✅                                                     |
+| 4   | `VaultService` — vincolo unicità `vault.name` + `makeVaultSnapshot` completo                | 🔄 snapshot stub presente                             |
+| 5   | `GitignoreService` — multi-vault, `load(Vault)`, clone difensivo                            | 🔄 singleton presente, refactoring necessario         |
+| 6   | `Vault` — `gitUsername` per chiave `username/vaultName`                                     | ✅ campo presente                                      |
+| 7   | `VaultService` — spostare `makeVaultSnapshot` → delegare a `GitignoreService.forSnapshot()` | ⬜                                                     |
+| 8   | `mvn test` verde — nessuna regressione                                                      | ⬜                                                     |
 
 ---
 
-### Layer 2 — TrayManager
+### Approfondimento Step 2 — `GitService.synchronize()` — cosa manca
 
-**6. `TrayManager`** — `SystemTray` + `TrayIcon` AWT. Costruito in tre sottopassi:
+La struttura è presente. Tre blocchi ancora da implementare:
 
-- **6a** `TrayIcon` base — icona statica, tooltip, click sinistro pubblica `SYNCHRONIZE` sul vault corrente
-- **6b** `ContextMenu` — struttura completa del menu tasto destro
-- **6c** `VaultSwitcher` — sottomenu vault con checkbox "Save on selection"
+**Blocco A — `makeVaultSnapshot` completo** Attualmente è uno stub in `VaultService`. Deve essere completato con FIFO reale e copia ricorsiva con PathMatcher. Dipende da `GitignoreService.forSnapshot()` — quindi Step 5 è prerequisito di Step 2.
 
-**7. `ToastNotification`** — tre scenari (success, conflitto, fallimento rete). `displayMessage()` di AWT per i toast semplici; finestra custom `JDialog` per i toast azionabili con bottone "Apri versioni remote".
+**Blocco B — estrazione conflitti dall'output**
+
+java
+
+```java
+List<String> conflicted = oursOutput.lines()
+    .filter(l -> l.startsWith("Auto-merging"))
+    .map(l -> l.replace("Auto-merging ", "").trim())
+    .toList();
+```
+
+Già definito — da inserire nel branch conflitto.
+
+**Blocco C — `git show FETCH_HEAD:<file>`**
+
+java
+
+```java
+result.add(file); // non showOutput — il chiamante vuole i nomi
+```
+
+Il fix è già noto — da applicare.
 
 ---
 
-### Layer 3 — Main + integrazione
+### Approfondimento Step 4 — `VaultService` unicità nome
 
-**8. `Main`** — modalità tray: carica `vaults.json`, costruisce `SocketServer`, registra i vault, avvia `TrayManager`, blocca sul `SystemTray`.
+Tre punti:
 
-**9. Task Scheduler Windows** — 3 task: Pull@logon (`PULL_LOGON` via `SocketClient`), Push@logoff (`PUSH_LOGOFF`), Autosave@15min.
+**`create()` e `update()`** — aggiungere guard:
 
-**10. Test e2e manuale** — vault reale, due sessioni logon/logoff.
+java
 
-**11. Release 1.0.0** — `git flow release finish 1.0.0`.
+```java
+private void checkNameUniqueness(String name, String excludeId) {
+    vaults.values().stream()
+        .filter(v -> v.getName().equals(name))
+        .filter(v -> !v.getId().equals(excludeId))
+        .findFirst()
+        .ifPresent(v -> { throw new VaultException("duplicated vault name: " + name); });
+}
+```
+
+`excludeId` serve in `update()` — non vuoi segnalare conflitto con se stesso.
+
+**All'avvio** — in `load()` dopo aver popolato la mappa:
+
+java
+
+```java
+Set<String> seen = new HashSet<>();
+vaults.values().forEach(v -> {
+    if (!seen.add(v.getName()))
+        throw new VaultException("duplicated vault name in vaults.json: " + v.getName());
+});
+```
+
+[NOTA] approccio difensivo: qualora vi fossero duplicati, ci limiteremmo a warn ed ignorare il duplicato.
+[NOTA] stesso approccio difensivo coi campi obbligatori, se manca username o name, warn e passa oltre.
+
+**`makeVaultSnapshot`** — da spostare fuori da `VaultService`. `VaultService` gestisce CRUD, non filesystem operations. Il metodo appartiene a un `SnapshotService` o rimane in `GitService` come operazione pre-conflitto.
+
+[NOTA] Introduzione di SnapshotService, a tenderà sarà previsto un sistema di disaster recovery con ripristino da backup.
 
 ---
 
-### Scope rimandato a M6
+### Approfondimento Step 5 — `GitignoreService` multi-vault
 
-`MainWindow` (struttura tab completa), `PrismUI` design system Maven, i18n 10 lingue — fuori scope M5, troppo volume.
+Tre refactoring necessari:
 
----
+**1. `load(Vault vault)` invece di `load(Path vaultPath)`** La chiave vault è `vault.getGitUsername() + "/" + vault.getName()`. Se `gitUsername` è null (vault non ancora configurato), fallback su `vault.getId()`.
 
-### Ordine di attacco per la sessione di stamattina
+[NOTA] struttureremo la UI in modo che il vault sia sempre configurato.
+[PRIMARY_GOAL] unicità globale del vault fin dal costruttore, e per ottenerlo basta inserire due campi.
+[REJECTED] fallback su vault.getId().
 
-Inizia da `EventType` — è la modifica più piccola con l'impatto più grande sulla suite. Quando `mvn test` è verde con `SYNCHRONIZE` al posto di `PULL_MANUAL`/`PUSH_MANUAL`, tutto il resto del Layer 1 ha una base stabile.
+**2. Clone difensivo di `APP_PATTERN_DEFINITIONS` per vault**
+
+java
+
+```java
+private List<AppPatterns> cloneAppPatterns() {
+    return APP_PATTERN_DEFINITIONS.stream()
+        .map(ap -> new AppPatterns(ap.getName(),
+            ap.getPatterns().stream()
+                .map(p -> new GitignorePattern(
+                    p.getPattern(), p.getLevel(),
+                    p.getAppName(), p.isNegated()))
+                .toList()))
+        .toList();
+}
+```
+
+Chiamato in `load(Vault)` — ogni vault ottiene la sua copia isolata.
+
+**3. `systemPatterns` e `appPatterns` come `Map<vaultKey, List<...>>`**
+
+java
+
+```java
+private final Map<String, List<SystemPattern>> systemPatterns = new TreeMap<>();
+private final Map<String, List<AppPatterns>>   appPatterns    = new TreeMap<>();
+private final Map<String, List<GitignorePattern>> userPatterns = new TreeMap<>();
+```
+
+`load(Vault)` popola le tre mappe per `vaultKey`. `save()` e `forSnapshot()` ricevono `Vault` e recuperano dalla mappa.

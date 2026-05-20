@@ -37,12 +37,12 @@ Componenti UI di M5: `TrayIcon`, `ContextMenu`, `VaultSwitcherPanel`, `ToastNoti
 
 Scala di priorità aggiornata:
 
-|Priorità|Evento|
-|---|---|
-|1|`PULL_LOGON`|
-|2|`SYNCHRONIZE`|
-|3|`PUSH_LOGOFF`|
-|4|`AUTOSAVE`|
+| Priorità | Evento        |
+| -------- | ------------- |
+| 1        | `PULL_LOGON`  |
+| 2        | `SYNCHRONIZE` |
+| 3        | `PUSH_LOGOFF` |
+| 4        | `AUTOSAVE`    |
 
 **Step 2 — `GitService.synchronize()`**
 

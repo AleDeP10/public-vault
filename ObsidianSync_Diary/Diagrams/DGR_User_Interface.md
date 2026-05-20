@@ -197,7 +197,7 @@ Prima il testo, poi il wireframe.
 - **Conflicts** — file in `remote-conflicts/` con bottone apri + stato risolto/aperto
 - **Backup** — lista snapshot FIFO con bottone apri cartella
 - **Settings** — properties globali: porta socket, lingua, tema
-![[IMG_MainWindow.png]]
+![[IMG_MainWindow_Settings.png]]
 
 ---
 ### Conferma di risoluzione conflict
