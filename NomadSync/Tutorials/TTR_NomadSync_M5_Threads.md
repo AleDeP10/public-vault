@@ -1,4 +1,4 @@
-# Tutorial — Multi-threading in Java e Thread Daemon
+# Multi-threading in Java e Thread Daemon
 
 ## 1. Cos'è un thread
 

@@ -15,7 +15,7 @@
 ---
 
 Ecco il diagramma delle interazioni:
-![[IMG_UI_Architecture.png]]
+![[IMG_NomadSync_UI_Architecture.png]]
 Il `VaultSwitcherPanel` è figlio del `ContextMenu` ma aggiorna lo stato in `current-vault.json` e pubblica direttamente sull'orchestratore se "Save on selection" è attivo — è il componente con più responsabilità nel menu rapido.
 
 
@@ -197,7 +197,7 @@ Prima il testo, poi il wireframe.
 - **Conflicts** — file in `remote-conflicts/` con bottone apri + stato risolto/aperto
 - **Backup** — lista snapshot FIFO con bottone apri cartella
 - **Settings** — properties globali: porta socket, lingua, tema
-![[IMG_MainWindow_Settings.png]]
+![[IMG_NomadSync_MainWindow_Settings.png]]
 
 ---
 ### Conferma di risoluzione conflict
