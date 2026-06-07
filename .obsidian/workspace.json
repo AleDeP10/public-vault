@@ -74,7 +74,8 @@
               "title": "Segnalibri"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -183,7 +184,7 @@
       "bases:Crea nuova Base": false
     }
   },
-  "active": "00556107356d14ca",
+  "active": "5572b7aab10026d5",
   "lastOpenFiles": [
     "ForgeUI/Milestones/MLS_ForgeUI_M1.md",
     "NomadSync/Tutorials/TTR_NomadSync_M5_Threads.md",

@@ -55,6 +55,8 @@ Le credenziali memorizzate nel Credential Manager possono continuare a sovrascri
 Gestione credenziali → Credenziali Windows → cerca github.com → Rimuovi
 ```
 
+**Attenzione**: il Credential Manager apre di default la sezione **Credenziali Web**, che non contiene le credenziali Git. GitHub è memorizzato nella sezione **Credenziali Windows** — il riquadro a destra nella schermata iniziale. Cercare `github.com` lì, non nelle Credenziali Web.
+
 Al push successivo Windows chiederà le credenziali corrette.
 
 ---
