@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "ForgeUI/Troubleshooting/TRB_ForgeUI_M2.md",
+                "file": "NomadSync/Tutorials/TTR_NomadSync_M2_Git_flow.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "TRB_ForgeUI_M2"
+              "title": "TTR_NomadSync_M2_Git_flow"
             }
           }
         ]
@@ -74,8 +74,7 @@
               "title": "Segnalibri"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -184,14 +183,16 @@
       "bases:Crea nuova Base": false
     }
   },
-  "active": "5572b7aab10026d5",
+  "active": "00556107356d14ca",
   "lastOpenFiles": [
+    "ForgeUI/ForgeUI_README.md",
+    "NomadSync/NomadSync_README.md",
+    "ForgeUI/Troubleshooting/TRB_ForgeUI_M2.md",
     "ForgeUI/Milestones/MLS_ForgeUI_M1.md",
     "NomadSync/Tutorials/TTR_NomadSync_M5_Threads.md",
     "README.md",
     "ForgeUI/Docs/ForgeUI_DTR.md",
     "NomadSync/Troubleshooting/TRB_NomadSync_M2.md",
-    "ForgeUI/Troubleshooting/TRB_ForgeUI_M2.md",
     "ForgeUI/Troubleshooting",
     "Senza nome.canvas",
     "Senza nome",
@@ -202,10 +203,8 @@
     "NomadSync/Docs/NomadSync_README_USER.md",
     "NomadSync/Experiments/EXP_NomadSync_Push_test.md",
     "ForgeUI/Docs/ForgeUI_README_DEV.md",
-    "ForgeUI/ForgeUI_README.md",
     "ForgeUI/Docs/ForgeUI_README_USER.md",
     "ForgeUI/Groomings/GRM_ForgeUI_M1.md",
-    "NomadSync/NomadSync_README.md",
     "NomadSync/Docs/NomadSync_DTR.md",
     "NomadSync/Docs",
     "ForgeUI/Docs",

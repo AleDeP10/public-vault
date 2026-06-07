@@ -111,4 +111,4 @@ Tutte le decisioni architetturali sono documentate in `Docs/ForgeUI_DTR.md`.
 
 ## Licenza
 
-MIT — Copyright © 2025 Alessandro De Prato & Gabriela Belmani
+MIT — Copyright © 2026 Alessandro De Prato & Gabriela Belmani
